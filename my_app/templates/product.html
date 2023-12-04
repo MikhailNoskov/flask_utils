@@ -6,6 +6,7 @@
 <!--        <h4>{{ full_name(product) }}</h4>-->
         <h1>{{ product.get('name') }}</h1>
         <h3><small>{{ product.get('category') }}</small></h3>
-        <h5>$ {{ product.get('price') }}</h5>
+<!--        <h5>$ {{ product.get('price') }}</h5>-->
+        <h3>{{ product['price']|format_currency }}</h3>
     </div>
 {% endblock %}

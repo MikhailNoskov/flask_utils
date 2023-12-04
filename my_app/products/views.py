@@ -28,4 +28,4 @@ def custom_processor():
 
 @products_blueprint.app_template_filter('full_name')
 def full_name_filter(product):
-    return '{0} / {1}'.format(product['category'], product['name'])
+    return '{0} | {1}'.format(product['category'], product['name'])
