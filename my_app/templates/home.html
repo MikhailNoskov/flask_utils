@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block container %}
+    <div class="top-pad">
+        {% for id, product in products.items() %}
+        <div class="top-pad offset-1 col-sm-10">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h2>
+                        <a href="{{ url_for('product.get_product', key=id) }}">{{ product.get('name') }}</a>
+                        <small>$ {{ product.get('price') }}</small>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
