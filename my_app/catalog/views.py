@@ -1,7 +1,7 @@
+from decimal import Decimal
 from flask import request, jsonify, Blueprint
 
-from my_app import db, redis
-from my_app.catalog.models import Product, Category
+from my_app.catalog.models import Product
 
 catalog = Blueprint('catalog', __name__)
 
@@ -12,72 +12,29 @@ def home():
     return "Welcome to catalog home"
 
 
-@catalog.route('/product/<prod_id>')
-def product(prod_id):
-    prod = Product.query.get_or_404(prod_id)
-    product_key = 'product-%s' % prod.id
-    redis.set(product_key, prod.name)
-    redis.expire(product_key, 600)
+@catalog.route('/product/<key>')
+def product(key):
+    prod = Product.objects.get_or_404(key=key)
     return 'Product - {}, ${}'.format(prod.name, prod.price)
 
 
 @catalog.route('/products')
 def products():
-    prods = Product.query.all()
+    prods = Product.objects.all()
     response = {}
     for prod in prods:
         response[prod.id] = {
             "name": prod.name,
             "price": prod.price,
-            'category': prod.category.name,
-            'company': prod.company
         }
-
     return jsonify(response)
 
 
 @catalog.route('/product-create', methods=["POST",])
 def create_product():
     name = request.form.get('name')
+    key = request.form.get('key')
     price = request.form.get('price')
-    categ_name = request.form.get('category')
-    category = Category.query.filter_by(name=categ_name).first()
-    if not category:
-        category = Category(categ_name)
-    new_prod = Product(name, price, category)
-    db.session.add(new_prod)
-    db.session.commit()
+    new_prod = Product(name=name, key=key, price=Decimal(price))
+    new_prod.save()
     return 'Product created.'
-
-
-@catalog.route('/category-create', methods=['POST',])
-def create_category():
-    name = request.form.get('name')
-    category = Category(name)
-    db.session.add(category)
-    db.session.commit()
-    return 'Category created.'
-
-
-@catalog.route('/categories')
-def categories():
-    categories = Category.query.all()
-    res = {}
-    for category in categories:
-        res[category.id] = {
-            'name': category.name
-        }
-        for prod in category.products:
-            res[category.id]['products'] = {
-                'id': prod.id,
-                'name': prod.name,
-                'price': prod.price
-            }
-    return jsonify(res)
-
-
-@catalog.route('/recent-products')
-def recent_products():
-    keys_alive = redis.keys('product-*')
-    products = [redis.get(k).decode('utf-8') for k in keys_alive]
-    return jsonify({'products': products})
