@@ -26,7 +26,8 @@ def products():
         response[prod.id] = {
             "name": prod.name,
             "price": prod.price,
-            'category': prod.category.name
+            'category': prod.category.name,
+            'company': prod.company
         }
 
     return jsonify(response)
