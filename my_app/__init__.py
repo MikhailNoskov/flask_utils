@@ -1,12 +1,8 @@
-from flask import Flask, request
-from my_app.products.views import products_blueprint
-import ccy
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.register_blueprint(products_blueprint)
-
-
-@app.template_filter('format_currency')
-def format_currency_filter(amount):
-    currency_code = ccy.countryccy(request.accept_languages.best[-2:])
-    return '{0} {1}'.format(currency_code, amount)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
