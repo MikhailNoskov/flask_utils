@@ -9,13 +9,16 @@ catalog = Blueprint('catalog', __name__)
 @catalog.route('/')
 @catalog.route('/home')
 def home():
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        products = Product.query.all()
+        return jsonify({'count': len(products)})
     # return "Welcome to catalog home"
     return render_template('home.html')
 
 
 @catalog.route('/product/<prod_id>')
 def product(prod_id):
-    prod = Product.query.get_or_404(prod_id)
+    product = Product.query.get_or_404(prod_id)
     # return 'Product - {}, ${}'.format(prod.name, prod.price)
     return render_template('product.html', product=product)
 
@@ -24,16 +27,17 @@ def product(prod_id):
 @catalog.route('/products/<int:page>')
 def products(page=1):
     # prods = Product.query.all()
-    prods = Product.query.paginate(page=page, per_page=10).items
-    response = {}
-    for prod in prods:
-        response[prod.id] = {
-            "name": prod.name,
-            "price": prod.price,
-            'category': prod.category.name,
-            'company': prod.company
-        }
-
+    # prods = Product.query.paginate(page=page, per_page=10).items
+    products = Product.query.paginate(page=page, per_page=10)
+    # response = {}
+    # for prod in prods:
+    #     response[prod.id] = {
+    #         "name": prod.name,
+    #         "price": prod.price,
+    #         'category': prod.category.name,
+    #         'company': prod.company
+    #     }
+    # print(prods)
     # return jsonify(response)
     return render_template('products.html', products=products)
 
@@ -79,3 +83,10 @@ def categories():
             }
     # return jsonify(res)
     return render_template('categories.html', categories=categories)
+
+
+@catalog.route('/category/<int:id>')
+def category(id):
+    category = Category.query.get_or_404(id)
+    print(category.name)
+    return render_template('category.html', category=category)
