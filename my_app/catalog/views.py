@@ -68,18 +68,19 @@ def create_product():
         name = request.form.get('name')
         price = request.form.get('price')
         categ_name = request.form.get('category')
-        category = Category.query.filter_by(name=categ_name).first()
-        if not category:
-            category = Category(categ_name)
-        new_prod = Product(name, price, category)
-        db.session.add(new_prod)
-        db.session.commit()
-        flash('The product %s has been created' % name,'success')
-        # return 'Product created.'
-        # return render_template('product.html', product=product)
-        if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
-            return redirect(url_for('catalog.product', prod_id=new_prod.id))
-        return 'Product created.'
+        if name and price and categ_name:
+            category = Category.query.filter_by(name=categ_name).first()
+            if not category:
+                category = Category(categ_name)
+            new_prod = Product(name, price, category)
+            db.session.add(new_prod)
+            db.session.commit()
+            flash('The product %s has been created' % name,'success')
+            if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
+                return redirect(url_for('catalog.product', prod_id=new_prod.id))
+            return 'Product created.'
+        flash('ERROR! The product %s has NOT been created' % name,'alert')
+        return render_template('product-create.html')
     return render_template('product-create.html')
 
 
