@@ -53,8 +53,7 @@ def create_product():
     new_prod = Product(name, price, category)
     db.session.add(new_prod)
     db.session.commit()
-    # return 'Product created.'
-    return render_template('product.html', product=product)
+    return 'Product created.'
 
 
 @catalog.route('/category-create', methods=['POST',])
