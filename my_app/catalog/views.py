@@ -2,7 +2,7 @@ from flask import request, jsonify, Blueprint, render_template
 
 from functools import wraps
 
-from my_app import db
+from my_app import db, MyCustom404
 from my_app.catalog.models import Product, Category
 
 catalog = Blueprint('catalog', __name__)
@@ -110,3 +110,8 @@ def category(id):
     category = Category.query.get_or_404(id)
     print(category.name)
     return render_template('category.html', category=category)
+
+
+@catalog.route('/custom_exception')
+def exception_404():
+    raise MyCustom404

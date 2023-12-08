@@ -11,6 +11,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
+class MyCustom404(Exception):
+    pass
+
+
 from my_app.catalog.views import catalog
 app.register_blueprint(catalog)
 
@@ -21,3 +26,8 @@ with app.app_context():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
+
+
+@app.errorhandler(MyCustom404)
+def special_page_not_found(error):
+    return render_template("custom_404.html"), 404
