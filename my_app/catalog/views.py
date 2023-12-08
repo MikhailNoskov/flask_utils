@@ -77,7 +77,9 @@ def create_product():
         flash('The product %s has been created' % name,'success')
         # return 'Product created.'
         # return render_template('product.html', product=product)
-        return redirect(url_for('catalog.product', prod_id=new_prod.id))
+        if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
+            return redirect(url_for('catalog.product', prod_id=new_prod.id))
+        return 'Product created.'
     return render_template('product-create.html')
 
 
