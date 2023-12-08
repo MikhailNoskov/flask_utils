@@ -19,8 +19,10 @@ def product(prod_id):
 
 
 @catalog.route('/products')
-def products():
-    prods = Product.query.all()
+@catalog.route('/products/<int:page>')
+def products(page=1):
+    # prods = Product.query.all()
+    prods = Product.query.paginate(page=page, per_page=10).items
     response = {}
     for prod in prods:
         response[prod.id] = {
