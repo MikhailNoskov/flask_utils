@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, render_template
 
 from my_app import db
 from my_app.catalog.models import Product, Category
@@ -9,13 +9,15 @@ catalog = Blueprint('catalog', __name__)
 @catalog.route('/')
 @catalog.route('/home')
 def home():
-    return "Welcome to catalog home"
+    # return "Welcome to catalog home"
+    return render_template('home.html')
 
 
 @catalog.route('/product/<prod_id>')
 def product(prod_id):
     prod = Product.query.get_or_404(prod_id)
-    return 'Product - {}, ${}'.format(prod.name, prod.price)
+    # return 'Product - {}, ${}'.format(prod.name, prod.price)
+    return render_template('product.html', product=product)
 
 
 @catalog.route('/products')
@@ -32,7 +34,8 @@ def products(page=1):
             'company': prod.company
         }
 
-    return jsonify(response)
+    # return jsonify(response)
+    return render_template('products.html', products=products)
 
 
 @catalog.route('/product-create', methods=["POST",])
@@ -46,7 +49,8 @@ def create_product():
     new_prod = Product(name, price, category)
     db.session.add(new_prod)
     db.session.commit()
-    return 'Product created.'
+    # return 'Product created.'
+    return render_template('product.html', product=product)
 
 
 @catalog.route('/category-create', methods=['POST',])
@@ -55,7 +59,8 @@ def create_category():
     category = Category(name)
     db.session.add(category)
     db.session.commit()
-    return 'Category created.'
+    # return 'Category created.'
+    return render_template('category.html', category=category)
 
 
 @catalog.route('/categories')
@@ -72,4 +77,5 @@ def categories():
                 'name': prod.name,
                 'price': prod.price
             }
-    return jsonify(res)
+    # return jsonify(res)
+    return render_template('categories.html', categories=categories)
