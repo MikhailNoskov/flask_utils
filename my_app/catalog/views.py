@@ -1,19 +1,39 @@
 from flask import request, jsonify, Blueprint, render_template
 
+from functools import wraps
+
 from my_app import db
 from my_app.catalog.models import Product, Category
 
 catalog = Blueprint('catalog', __name__)
 
 
+def template_to_json(template=None):
+    """Return a dict from your view and this will either pass it to a template or render json. Use like:
+    @template_or_json('template.html')
+    """
+    def decorated(func):
+        @wraps(func)
+        def decorated_fn(*args, **kwargs):
+            ctx = func(*args, **kwargs)
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest" or not template:
+                return jsonify(ctx)
+            else:
+                return render_template(template, **ctx)
+        return  decorated_fn
+    return decorated
+
+
 @catalog.route('/')
 @catalog.route('/home')
+@template_to_json('home.html')
 def home():
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        products = Product.query.all()
-        return jsonify({'count': len(products)})
-    # return "Welcome to catalog home"
-    return render_template('home.html')
+    # if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+    products = Product.query.all()
+    #     return jsonify({'count': len(products)})
+    # # return "Welcome to catalog home"
+    # return render_template('home.html')
+    return {"count": len(products)}
 
 
 @catalog.route('/product/<prod_id>')
@@ -54,6 +74,7 @@ def create_product():
     db.session.add(new_prod)
     db.session.commit()
     return 'Product created.'
+    # return render_template('product.html', product=product)
 
 
 @catalog.route('/category-create', methods=['POST',])
