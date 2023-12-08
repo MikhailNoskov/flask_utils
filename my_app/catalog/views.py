@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint, render_template
+from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for
 
 from functools import wraps
 
@@ -62,19 +62,23 @@ def products(page=1):
     return render_template('products.html', products=products)
 
 
-@catalog.route('/product-create', methods=["POST",])
+@catalog.route('/product-create', methods=["GET", "POST",])
 def create_product():
-    name = request.form.get('name')
-    price = request.form.get('price')
-    categ_name = request.form.get('category')
-    category = Category.query.filter_by(name=categ_name).first()
-    if not category:
-        category = Category(categ_name)
-    new_prod = Product(name, price, category)
-    db.session.add(new_prod)
-    db.session.commit()
-    return 'Product created.'
-    # return render_template('product.html', product=product)
+    if request.method == "POST":
+        name = request.form.get('name')
+        price = request.form.get('price')
+        categ_name = request.form.get('category')
+        category = Category.query.filter_by(name=categ_name).first()
+        if not category:
+            category = Category(categ_name)
+        new_prod = Product(name, price, category)
+        db.session.add(new_prod)
+        db.session.commit()
+        flash('The product %s has been created' % name,'success')
+        # return 'Product created.'
+        # return render_template('product.html', product=product)
+        return redirect(url_for('catalog.product', prod_id=new_prod.id))
+    return render_template('product-create.html')
 
 
 @catalog.route('/category-create', methods=['POST',])
