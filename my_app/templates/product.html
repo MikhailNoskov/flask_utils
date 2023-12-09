@@ -5,6 +5,8 @@
     <small> {{ product.category.name }}</small>
     <h4>{{ product.company }}</h4>
     <h3>{{ product.price }}</h3>
-    <img src="{{ url_for('static', filename='uploads/' + product.image_path) }}" style="width: 30%;"/>
+    {% if product.image_path %}
+        <img src="{{ url_for('static', filename='uploads/' + product.image_path) }}" style="width: 30%;"/>
+    {% endif %}
 </div>
 {% endblock %}

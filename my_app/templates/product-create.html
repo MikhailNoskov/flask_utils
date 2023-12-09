@@ -3,6 +3,8 @@
 <div class="top-pad">
     <form class="form-horizontal" method="POST" action="{{ url_for('catalog.create_product') }}" role="form" enctype="multipart/form-data">
 <!--        {{ form.hidden_tag() }}-->
+        {{ form.csrf_token }}
+
         <div class="form-group">
             {{ form.name.label }}: {{ form.name }}
         </div>

@@ -13,6 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
     f'{config["DB_HOST"]}:{config["DB_PORT"]}/{config["DB_NAME"]}'
 )
 app.secret_key = config['SECRET_KEY']
+app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
