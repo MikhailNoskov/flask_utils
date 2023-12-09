@@ -1,9 +1,11 @@
-from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for
-from sqlalchemy.orm import join
-
+import os
 from functools import wraps
 
-from my_app import db, MyCustom404
+from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for
+from sqlalchemy.orm import join
+from werkzeug.utils import secure_filename
+
+from my_app import app, db, MyCustom404, ALLOWED_EXTENSIONS
 from my_app.catalog.models import Product, Category
 from .forms import ProductForm, CategoryForm
 
@@ -22,7 +24,7 @@ def template_to_json(template=None):
                 return jsonify(ctx)
             else:
                 return render_template(template, **ctx)
-        return  decorated_fn
+        return decorated_fn
     return decorated
 
 
@@ -32,7 +34,7 @@ def template_to_json(template=None):
 def home():
     # if request.headers.get("X-Requested-With") == "XMLHttpRequest":
     products = Product.query.all()
-    #     return jsonify({'count': len(products)})
+        # return jsonify({'count': len(products)})
     # # return "Welcome to catalog home"
     # return render_template('home.html')
     return {"count": len(products)}
@@ -71,13 +73,16 @@ def create_product():
         name = request.form.get('name')
         price = request.form.get('price')
         categ = Category.query.get_or_404(request.form.get('category'))
-        new_prod = Product(name, price, categ)
+        image = form.image.data
+        filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        new_prod = Product(name=name, price=price, category=categ, image_path=filename)
         db.session.add(new_prod)
         db.session.commit()
         flash('The product %s has been created' % name,'success')
-        if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
-            return redirect(url_for('catalog.product', prod_id=new_prod.id))
-        return 'Product created.'
+        # if request.headers['Content-Type'] == 'application/multipart/form-data':
+        return redirect(url_for('catalog.product', prod_id=new_prod.id))
+        # return 'Product created.'
     if form.errors:
         flash(form.errors, 'danger')
     return render_template('product-create.html', form=form)
