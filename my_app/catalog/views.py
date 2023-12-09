@@ -71,7 +71,8 @@ def create_product():
         (cat.id, cat.name) for cat in Category.query.all()
     ]
     form.category.choices = categories
-    if request.method == "POST":
+    # if request.method == "POST":
+    if form.validate_on_submit():
         name = request.form.get('name')
         price = request.form.get('price')
         categ = Category.query.get_or_404(request.form.get('category'))
@@ -86,8 +87,10 @@ def create_product():
         if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
             return redirect(url_for('catalog.product', prod_id=new_prod.id))
         return 'Product created.'
-        # flash('ERROR! The product %s has NOT been created' % name,'alert')
-        # return render_template('product-create.html')
+    if form.errors:
+        flash(form.errors, 'danger')
+    # flash('ERROR! The product %s has NOT been created' % name,'alert')
+    # return render_template('product-create.html')
     return render_template('product-create.html', form=form)
 
 
