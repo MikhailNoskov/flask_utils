@@ -3,6 +3,8 @@ import os
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
+
 from .config import config
 
 app = Flask(__name__)
@@ -16,6 +18,7 @@ app.secret_key = config['SECRET_KEY']
 app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+CSRFProtect(app)
 
 
 class MyCustom404(Exception):

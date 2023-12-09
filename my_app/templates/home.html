@@ -10,5 +10,13 @@ $(document).ready(function(){
         $('#catalog_link').append('<span class="alertion">' + " " + data.count + '</span>');
     });
 });
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i
+            .test(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken)
+        }
+    }
+})
 </script>
 {% endblock %}
