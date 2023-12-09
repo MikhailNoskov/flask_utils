@@ -5,6 +5,7 @@ from functools import wraps
 
 from my_app import db, MyCustom404
 from my_app.catalog.models import Product, Category
+from forms import ProductForm
 
 catalog = Blueprint('catalog', __name__)
 
@@ -65,23 +66,28 @@ def products(page=1):
 
 @catalog.route('/product-create', methods=["GET", "POST",])
 def create_product():
+    form = ProductForm(meta={'csrf': False})
+    categories = [
+        (cat.id, cat.name for cat in Category.query.all())
+    ]
+    form.category.choices = categories
     if request.method == "POST":
         name = request.form.get('name')
         price = request.form.get('price')
-        categ_name = request.form.get('category')
-        if name and price and categ_name:
-            category = Category.query.filter_by(name=categ_name).first()
-            if not category:
-                category = Category(categ_name)
-            new_prod = Product(name, price, category)
-            db.session.add(new_prod)
-            db.session.commit()
-            flash('The product %s has been created' % name,'success')
-            if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
-                return redirect(url_for('catalog.product', prod_id=new_prod.id))
-            return 'Product created.'
-        flash('ERROR! The product %s has NOT been created' % name,'alert')
-        return render_template('product-create.html')
+        categ = Category.query.get_or_404(request.form.get('category'))
+        # if name and price and categ_name:
+        #     category = Category.query.filter_by(name=categ_name).first()
+        #     if not category:
+        #         category = Category(categ_name)
+        new_prod = Product(name, price, categ)
+        db.session.add(new_prod)
+        db.session.commit()
+        flash('The product %s has been created' % name,'success')
+        if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
+            return redirect(url_for('catalog.product', prod_id=new_prod.id))
+        return 'Product created.'
+        # flash('ERROR! The product %s has NOT been created' % name,'alert')
+        # return render_template('product-create.html')
     return render_template('product-create.html')
 
 
