@@ -1,9 +1,13 @@
+import os
+
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from .config import config
 
 app = Flask(__name__)
+ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
+app.config['UPLOAD_FOLDER'] = os.path.realpath('.') + '/my_app/static/uploads'
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     f'{config["DB_DRIVER"]}://{config["DB_USER"]}:{config["DB_PASSWORD"]}@'
     f'{config["DB_HOST"]}:{config["DB_PORT"]}/{config["DB_NAME"]}'

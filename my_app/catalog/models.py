@@ -8,10 +8,12 @@ class Product(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category', backref=db.backref('products', lazy='dynamic'))
     company = db.Column(db.String(100))
+    image_path = db.Column(db.String(255))
 
-    def __init__(self, name, price, category):
+    def __init__(self, name, price, image_path, category):
         self.name = name
         self.price = price
+        self.image_path = image_path
         self.category = category
 
     def __repr__(self):
