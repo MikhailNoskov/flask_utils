@@ -5,7 +5,7 @@ from functools import wraps
 
 from my_app import db, MyCustom404
 from my_app.catalog.models import Product, Category
-from forms import ProductForm
+from .forms import ProductForm
 
 catalog = Blueprint('catalog', __name__)
 
@@ -68,7 +68,7 @@ def products(page=1):
 def create_product():
     form = ProductForm(meta={'csrf': False})
     categories = [
-        (cat.id, cat.name for cat in Category.query.all())
+        (cat.id, cat.name) for cat in Category.query.all()
     ]
     form.category.choices = categories
     if request.method == "POST":
@@ -88,7 +88,7 @@ def create_product():
         return 'Product created.'
         # flash('ERROR! The product %s has NOT been created' % name,'alert')
         # return render_template('product-create.html')
-    return render_template('product-create.html')
+    return render_template('product-create.html', form=form)
 
 
 @catalog.route('/category-create', methods=['POST',])
