@@ -7,8 +7,8 @@
                 <a href="{{ url_for('catalog.product', prod_id=product.id) }}">
                     {{ product.name }}
                 </a>
-                <small>$ {{ product.price }}</small>
             </h2>
+            <small>$ {{ product.price }}</small>
         </div>
     {% endfor %}
     {% if products.has_prev %}

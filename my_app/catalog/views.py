@@ -5,7 +5,7 @@ from functools import wraps
 
 from my_app import db, MyCustom404
 from my_app.catalog.models import Product, Category
-from .forms import ProductForm
+from .forms import ProductForm, CategoryForm
 
 catalog = Blueprint('catalog', __name__)
 
@@ -67,10 +67,10 @@ def products(page=1):
 @catalog.route('/product-create', methods=["GET", "POST",])
 def create_product():
     form = ProductForm(meta={'csrf': False})
-    categories = [
-        (cat.id, cat.name) for cat in Category.query.all()
-    ]
-    form.category.choices = categories
+    # categories = [
+    #     (cat.id, cat.name) for cat in Category.query.all()
+    # ]
+    # form.category.choices = categories
     # if request.method == "POST":
     if form.validate_on_submit():
         name = request.form.get('name')
@@ -94,14 +94,20 @@ def create_product():
     return render_template('product-create.html', form=form)
 
 
-@catalog.route('/category-create', methods=['POST',])
+@catalog.route('/category-create', methods=['GET', 'POST',])
 def create_category():
-    name = request.form.get('name')
-    category = Category(name)
-    db.session.add(category)
-    db.session.commit()
-    # return 'Category created.'
-    return render_template('category.html', category=category)
+    form = CategoryForm(meta={'csrf': False})
+    if form.validate_on_submit():
+        name = request.form.get('name')
+        category = Category(name)
+        db.session.add(category)
+        db.session.commit()
+        # return 'Category created.'
+        flash('The category %s has been created' % name,'success')
+        return render_template('category.html', category=category)
+    if form.errors:
+        flash(form.errors, 'danger')
+    return render_template('category-create.html', form=form)
 
 
 @catalog.route('/categories')
