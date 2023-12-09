@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+import flask
 from markupsafe import Markup
 from wtforms import StringField, DecimalField, SelectField
 from flask_wtf import FlaskForm
@@ -37,10 +38,14 @@ class CustomCategoryInput(Select):
 
 class CategoryField(SelectField):
     # widget = CustomCategoryInput()
+
     def iter_choices(self):
-        categories = [(c.id, c.name) for c in Category.query.all()]
+        categories = [("", "")] + [(c.id, c.name) for c in Category.query.all()]
         for value, label in categories:
-            yield value, label, self.coerce(value) == self.data
+            if value == label == '':
+                yield value, label, True
+            else:
+                yield value, label, self.coerce(value) == self.data
 
     def pre_validate(self, form):
         for v, _ in [(c.id, c.name) for c in Category.query.all()]:

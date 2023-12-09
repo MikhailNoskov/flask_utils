@@ -67,19 +67,10 @@ def products(page=1):
 @catalog.route('/product-create', methods=["GET", "POST",])
 def create_product():
     form = ProductForm(meta={'csrf': False})
-    # categories = [
-    #     (cat.id, cat.name) for cat in Category.query.all()
-    # ]
-    # form.category.choices = categories
-    # if request.method == "POST":
     if form.validate_on_submit():
         name = request.form.get('name')
         price = request.form.get('price')
         categ = Category.query.get_or_404(request.form.get('category'))
-        # if name and price and categ_name:
-        #     category = Category.query.filter_by(name=categ_name).first()
-        #     if not category:
-        #         category = Category(categ_name)
         new_prod = Product(name, price, categ)
         db.session.add(new_prod)
         db.session.commit()
@@ -89,8 +80,6 @@ def create_product():
         return 'Product created.'
     if form.errors:
         flash(form.errors, 'danger')
-    # flash('ERROR! The product %s has NOT been created' % name,'alert')
-    # return render_template('product-create.html')
     return render_template('product-create.html', form=form)
 
 
