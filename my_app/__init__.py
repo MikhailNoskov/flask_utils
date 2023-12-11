@@ -17,6 +17,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 )
 app.secret_key = config['SECRET_KEY']
 app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
+app.config["FACEBOOK_OAUTH_CLIENT_ID"] = config['FACEBOOK_ID']
+app.config["FACEBOOK_OAUTH_CLIENT_SECRET"] = config['FACEBOOK_SECRET']
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 CSRFProtect(app)
@@ -32,8 +34,12 @@ class MyCustom404(Exception):
 
 from my_app.catalog.views import catalog
 app.register_blueprint(catalog)
+
 from my_app.auth.views import auth_route
 app.register_blueprint(auth_route)
+
+from my_app.auth.views import facebook_blueprint
+app.register_blueprint(facebook_blueprint)
 
 with app.app_context():
     db.create_all()

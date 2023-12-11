@@ -2,6 +2,8 @@ import datetime
 
 from flask import request, render_template, flash, redirect, url_for, session, Blueprint, g
 from flask_login import current_user, login_user, logout_user, login_required
+from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
+
 from my_app import app, db, login_manager
 from my_app.auth.models import User
 from my_app.auth.forms import RegistrationForm, LoginForm
@@ -78,3 +80,22 @@ def logout():
     #     flash('You have successfully logged out.', 'success')
     logout_user()
     return redirect(url_for('catalog.home'))
+
+
+facebook_blueprint = make_facebook_blueprint(scope='email', redirect_to='auth_router.facebook_login')
+
+
+@auth_route.route
+def facebook_login():
+    if not facebook.authorized:
+        return redirect(url_for("facebook.login"))
+
+    resp = facebook.get("/me?fields=name,email")
+    user = User.query.filter_by(username=resp.json()["email"]).first()
+    if not user:
+        user = User(resp.json()["email"], '')
+        db.session.add(user)
+        db.session.commit()
+    login_user(user)
+    flash('Logged in as name=%s using Facebook login' % (resp.json()['name']), 'success' )
+    return redirect(request.args.get('next', url_for('catalog.home')))
