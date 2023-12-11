@@ -16,7 +16,9 @@
             </form>
         </div>
         <div class="tab-pane" id="social-logins">
-            <a href="{{ url_for('facebook.login', next=url_for('catalog.home')) }}">Login via Facebook</a>
+            <a href="{{ url_for('auth.facebook_login', next=url_for('catalog.home')) }}">Login via Facebook</a>
+            <br>
+            <a href="{{ url_for('auth.google_login', next=url_for('catalog.home'))}}">Login via Google</a>
         </div>
     </div>
 </div>

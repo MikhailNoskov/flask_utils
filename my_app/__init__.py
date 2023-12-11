@@ -19,6 +19,11 @@ app.secret_key = config['SECRET_KEY']
 app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
 app.config["FACEBOOK_OAUTH_CLIENT_ID"] = config['FACEBOOK_ID']
 app.config["FACEBOOK_OAUTH_CLIENT_SECRET"] = config['FACEBOOK_SECRET']
+
+app.config["GOOGLE_OAUTH_CLIENT_ID"] = config['GOOGLE_CLIENT_ID']
+app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
+app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 CSRFProtect(app)
@@ -38,8 +43,9 @@ app.register_blueprint(catalog)
 from my_app.auth.views import auth_route
 app.register_blueprint(auth_route)
 
-from my_app.auth.views import facebook_blueprint
+from my_app.auth.views import facebook_blueprint, google_blueprint
 app.register_blueprint(facebook_blueprint)
+app.register_blueprint(google_blueprint)
 
 with app.app_context():
     db.create_all()

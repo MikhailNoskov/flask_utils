@@ -3,6 +3,7 @@ import datetime
 from flask import request, render_template, flash, redirect, url_for, session, Blueprint, g
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
+from flask_dance.contrib.google import make_google_blueprint, google
 
 from my_app import app, db, login_manager
 from my_app.auth.models import User
@@ -83,9 +84,17 @@ def logout():
 
 
 facebook_blueprint = make_facebook_blueprint(scope='email', redirect_to='auth_router.facebook_login')
+google_blueprint = make_google_blueprint(
+    scope=[
+        "openid",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile"
+    ],
+    redirect_to='google.login'
+)
 
 
-@auth_route.route
+@auth_route.route("/facebook-login")
 def facebook_login():
     if not facebook.authorized:
         return redirect(url_for("facebook.login"))
@@ -98,4 +107,19 @@ def facebook_login():
         db.session.commit()
     login_user(user)
     flash('Logged in as name=%s using Facebook login' % (resp.json()['name']), 'success' )
+    return redirect(request.args.get('next', url_for('catalog.home')))
+
+
+@auth_route.route("/google-login")
+def google_login():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+    resp = google.get("/oauth2/v1/userinfo")
+    user = User.query.filter_by(username=resp.json()["email"]).first()
+    if not user:
+        user = User(resp.json()["email"], '')
+        db.session.add(user)
+        db.session.commit()
+    login_user(user)
+    flash('Logged in as name=%s using Google login' % (resp.json()['name']), 'success')
     return redirect(request.args.get('next', url_for('catalog.home')))
