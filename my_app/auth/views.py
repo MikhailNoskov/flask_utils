@@ -16,7 +16,7 @@ def register():
     if form.validate_on_submit():
         username = request.form.get('username')
         password = request.form.get('password')
-        existing_username = User.query.like('%' + username + '%').first()
+        existing_username = User.query.filter(User.username.like('%' + username + '%')).first()
         if existing_username:
             flash(
                 'This username already exists. Try another one', 'warning'
@@ -28,13 +28,13 @@ def register():
         flash(
             'You are registered successfully', 'success'
         )
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('catalog.home'))
     if form.errors:
         flash(form.errors, 'danger')
     return render_template('register.html', form=form)
 
 
-@auth_route.route('/login')
+@auth_route.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -59,4 +59,4 @@ def logout():
     if 'username' in session:
         session.pop('username')
         flash('You have successfully logged out.', 'success')
-    return redirect(url_for('auth.home'))
+    return redirect(url_for('catalog.home'))
