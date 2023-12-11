@@ -27,6 +27,8 @@ class MyCustom404(Exception):
 
 from my_app.catalog.views import catalog
 app.register_blueprint(catalog)
+from my_app.auth.views import auth_route
+app.register_blueprint(auth_route)
 
 with app.app_context():
     db.create_all()

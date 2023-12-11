@@ -9,6 +9,7 @@ class RegistrationForm(FlaskForm):
         InputRequired(),
         EqualTo('confirm', message='Password must match')
     ])
+    confirm = PasswordField('Confirm Password',[InputRequired()])
 
 
 class LoginForm(FlaskForm):
