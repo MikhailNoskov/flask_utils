@@ -4,6 +4,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
+from flask_login import LoginManager
 
 from .config import config
 
@@ -19,6 +20,10 @@ app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 CSRFProtect(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
 
 
 class MyCustom404(Exception):
