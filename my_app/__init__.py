@@ -46,8 +46,11 @@ app.register_blueprint(auth_route)
 from my_app.auth.views import facebook_blueprint, google_blueprint
 app.register_blueprint(facebook_blueprint)
 app.register_blueprint(google_blueprint)
-from my_app.api.views import api_route
-app.register_blueprint(api_route)
+
+from .api.views import ProductView
+product_view = ProductView.as_view('product_view')
+app.add_url_rule('/api/products/<int:page>', view_func=product_view, methods=['GET', 'POST'])
+app.add_url_rule('/api/product/<int:id>', view_func=product_view, methods=['GET', 'PUT', 'DELETE'])
 
 with app.app_context():
     db.create_all()
