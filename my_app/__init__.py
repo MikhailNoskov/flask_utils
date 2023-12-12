@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
+from flask_restful import Api
 
 from .config import config
 
@@ -23,6 +24,8 @@ app.config["FACEBOOK_OAUTH_CLIENT_SECRET"] = config['FACEBOOK_SECRET']
 app.config["GOOGLE_OAUTH_CLIENT_ID"] = config['GOOGLE_CLIENT_ID']
 app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
 app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
+
+api = Api(app)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
