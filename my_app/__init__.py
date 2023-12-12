@@ -10,6 +10,8 @@ from flask_restful import Api
 from .config import config
 
 app = Flask(__name__)
+api = Api(app)
+
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 app.config['UPLOAD_FOLDER'] = os.path.realpath('.') + '/my_app/static/uploads'
 app.config['SQLALCHEMY_DATABASE_URI'] = (
@@ -24,8 +26,6 @@ app.config["FACEBOOK_OAUTH_CLIENT_SECRET"] = config['FACEBOOK_SECRET']
 app.config["GOOGLE_OAUTH_CLIENT_ID"] = config['GOOGLE_CLIENT_ID']
 app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
 app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
-
-api = Api(app)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -50,10 +50,13 @@ from my_app.auth.views import facebook_blueprint, google_blueprint
 app.register_blueprint(facebook_blueprint)
 app.register_blueprint(google_blueprint)
 
-from .api.views import ProductView
-product_view = ProductView.as_view('product_view')
-app.add_url_rule('/api/products/<int:page>', view_func=product_view, methods=['GET', 'POST'])
-app.add_url_rule('/api/product/<int:id>', view_func=product_view, methods=['GET', 'PUT', 'DELETE'])
+from my_app.api_routes.views import ProductApi
+api.add_resource(
+    ProductApi,
+    '/api/products',
+    '/api/products/<int:page>',
+    '/api/product/<int:id>'
+)
 
 with app.app_context():
     db.create_all()
