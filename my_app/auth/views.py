@@ -1,5 +1,3 @@
-import datetime
-
 from flask import request, render_template, flash, redirect, url_for, session, Blueprint, g
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
@@ -46,7 +44,7 @@ def register():
         )
         return redirect(url_for('catalog.home'))
     if form.errors:
-        flash(form.errors, 'danger')
+        flash(f'{form.errors}', 'danger')
     return render_template('register.html', form=form)
 
 
