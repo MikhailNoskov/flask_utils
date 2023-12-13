@@ -149,7 +149,7 @@ def users_list_admin():
     return render_template('users-list-admin.html', users=users)
 
 
-@auth_route.route('/admin/create-user', methods=['POST',])
+@auth_route.route('/admin/create-user', methods=['GET', 'POST',])
 @login_required
 @admin_login_required
 def user_create_admin():
@@ -188,7 +188,7 @@ def user_update_admin(id):
     if form.validate_on_submit():
         username = form.username.data
         admin = form.admin.data
-        User.query.filter_by(id).update(
+        User.query.filter_by(id=id).update(
             {
                 'username': username,
                 'admin': admin
@@ -204,7 +204,7 @@ def user_update_admin(id):
     return render_template('user-update-admin.html', form=form, user=user)
 
 
-@auth_route.route('/admin/delete-user/<id>', methods=['DELETE',])
+@auth_route.route('/admin/delete-user/<id>')
 @login_required
 @admin_login_required
 def user_delete_admin(id):

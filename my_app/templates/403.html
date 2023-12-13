@@ -1,0 +1,7 @@
+{% extends 'home.html' %}
+{% block container %}
+<div class="top-pad">
+    <h3>Hola Friend! It looks like you are not allowed to view this page</h3>
+    <h4>To continue, either check your administrative rights or go back <a href="{{ url_for('catalog.home')}}">home</a></h4>
+</div>
+{% endblock %}
