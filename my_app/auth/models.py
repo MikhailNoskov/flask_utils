@@ -8,11 +8,13 @@ class User(db.Model):
     username = db.Column(db.String(100))
     pwdhash = db.Column(db.String())
     admin = db.Column(db.Boolean())
+    roles = db.Column(db.String(4))
 
-    def __init__(self, username, password, admin=False):
+    def __init__(self, username, password, admin=False, roles='R'):
         self.username = username
         self.pwdhash = generate_password_hash(password)
         self.admin = admin
+        self.roles = self.admin and roles or ''
 
     def check_password(self, password):
         return check_password_hash(self.pwdhash, password)
