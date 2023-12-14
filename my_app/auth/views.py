@@ -2,9 +2,12 @@ from flask import request, render_template, flash, redirect, url_for, session, B
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
 from flask_dance.contrib.google import make_google_blueprint, google
+from flask_admin import BaseView, expose, AdminIndexView
+from flask_admin.contrib.sqla import ModelView
 
-from my_app import app, db, login_manager
+from my_app import app, db, login_manager, admin
 from my_app.auth.models import User
+from my_app.catalog.models import Product
 from my_app.auth.forms import RegistrationForm, LoginForm
 
 
@@ -121,3 +124,16 @@ def google_login():
     login_user(user)
     flash('Logged in as name=%s using Google login' % (resp.json()['name']), 'success')
     return redirect(request.args.get('next', url_for('catalog.home')))
+
+
+# class HelloView(AdminIndexView):
+#     # @expose('/')
+#     # def index(self):
+#     #     return self.render('home.html')
+#
+#     def is_accessible(self):
+#         return current_user.is_authenticated and current_user.is_admin()
+#
+#
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Product, db.session))
