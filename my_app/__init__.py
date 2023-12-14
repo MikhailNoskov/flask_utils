@@ -6,13 +6,13 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_restful import Api
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView
 
 from .config import config
 
 app = Flask(__name__)
 api = Api(app)
-admin = Admin(app)
+# admin = Admin(app)
 
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 app.config['UPLOAD_FOLDER'] = os.path.realpath('.') + '/my_app/static/uploads'
@@ -30,12 +30,16 @@ app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
 app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
 
 db = SQLAlchemy(app)
+
 migrate = Migrate(app, db)
 CSRFProtect(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
+
+
+from my_app.admin_mod import admin_models
 
 
 class MyCustom404(Exception):
@@ -59,8 +63,9 @@ api.add_resource(
     '/api/products/<int:page>',
     '/api/product/<int:id>'
 )
+
 # from my_app.auth.views import HelloView
-# admin.add_view(HelloView(name='Hello'))
+# admin_mod.add_view(HelloView(name='Hello'))
 # from my_app.auth.views import HelloView
 
 with app.app_context():
