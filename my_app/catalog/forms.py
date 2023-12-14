@@ -1,6 +1,5 @@
 from decimal import Decimal
-
-import flask
+from flask_babel import lazy_gettext as _
 from markupsafe import Markup
 from wtforms import StringField, DecimalField, SelectField
 from flask_wtf import FlaskForm
@@ -57,14 +56,14 @@ class CategoryField(SelectField):
 
 
 class BasicForm(FlaskForm):
-    name = StringField('Name', validators=[InputRequired()])
+    name = StringField(_('Name'), validators=[InputRequired()])
 
 
 class ProductForm(BasicForm):
-    price = DecimalField('Price', validators=[InputRequired(), NumberRange(min=Decimal('0.0'))])
-    category = CategoryField('Category', coerce=int, validators=[InputRequired()])
-    image = FileField('Product Image', validators=[FileRequired()])
+    price = DecimalField(_('Price'), validators=[InputRequired(), NumberRange(min=Decimal('0.0'))])
+    category = CategoryField(_('Category'), coerce=int, validators=[InputRequired()])
+    image = FileField(_('Product Image'), validators=[FileRequired()])
 
 
 class CategoryForm(BasicForm):
-    name = StringField('Name', validators=[InputRequired(), check_duplicate_category()])
+    name = StringField(_('Name'), validators=[InputRequired(), check_duplicate_category()])

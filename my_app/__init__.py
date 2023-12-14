@@ -11,8 +11,21 @@ from flask_babel import Babel
 
 from .config import config
 
+
+ALLOWED_LANGUAGES = {
+    'en': 'English',
+    'es': 'Spanish',
+}
+
+
 app = Flask(__name__)
 api = Api(app)
+babel = Babel(app)
+
+def get_locale():
+    return request.accept_languages.best_match(ALLOWED_LANGUAGES.keys())
+
+babel.init_app(app, locale_selector=get_locale)
 # admin = Admin(app)
 
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
@@ -39,17 +52,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 
-ALLOWED_LANGUAGES = {
-    'en': 'English',
-    'es': 'Spanish',
-}
-
-babel = Babel(app)
-
-def get_locale():
-    return request.accept_languages.best_match(ALLOWED_LANGUAGES.keys())
-
-babel.init_app(app, locale_selector=get_locale())
 
 from my_app.admin_mod import admin_models
 

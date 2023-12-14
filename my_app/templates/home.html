@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block container %}
-    <h1>Welcome to the Catalog Home</h1>
+    <h1>{{ _('Welcome to the Catalog Home') }}</h1>
     {% if current_user.is_authenticated %}
         <h3>Hey {{ current_user.username }}</h3>
-        <a href="{{ url_for('catalog.products') }}" id="catalog_link">Click here to see the catalog</a>
-        <a href="{{ url_for('auth.logout') }}">Click here to logout</a>
+        <a href="{{ url_for('catalog.products') }}" id="catalog_link">{{ _('Click here to see the catalog') }}</a>
+        <a href="{{ url_for('auth.logout') }}">{{ _('Click here to logout') }}</a>
     {% else %}
-        Click here to <a href="{{ url_for('auth.login') }}">login</a> or <a href="{{ url_for('auth.register') }}">register</a>
+        {{ _('Click here to') }} <a href="{{ url_for('auth.login') }}">{{ _('login') }}</a> {{ _('or') }} <a href="{{ url_for('auth.register') }}">{{ _('register') }}</a>
     {% endif %}
 {% endblock %}
 {% block scripts %}
