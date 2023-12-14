@@ -17,9 +17,9 @@
         {{"<< Previous Page"}}
     {% endif %} |
     {% if products.has_next %}
-        <a href="{{ url_for(request.endpoint, page=products.next_num) }}">{{"Next page >>"}}</a>
+        <a href="{{ url_for(request.endpoint, page=products.next_num) }}">{{"Next Page >>"}}</a>
     {% else %}
-        {{"Next page >>"}}
+        {{"Next Page >>"}}
     {% endif %}
 </div>
 {% endblock %}

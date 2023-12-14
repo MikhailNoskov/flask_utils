@@ -35,6 +35,7 @@ def create_app(alt_config={}):
     app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
     app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
     app.config['LOG_FILE'] = 'application.log'
+    app.config.update(alt_config)
 
     RECEPIENTS = ['example@mail.com']
 
@@ -77,10 +78,10 @@ def create_db(app):
 
 
 app = create_app()
-api = Api(app)
 db = create_db(app)
 migrate = Migrate(app, db)
-CSRFProtect(app)
+# CSRFProtect(app)
+api = Api(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
