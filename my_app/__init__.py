@@ -1,4 +1,5 @@
 import os
+import sentry_sdk
 
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
@@ -6,9 +7,14 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_restful import Api
-from flask_admin import Admin, AdminIndexView
 
 from .config import config
+
+sentry_sdk.init(
+    dsn=config['SENTRY_DSN'],
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 
 app = Flask(__name__)
 api = Api(app)
