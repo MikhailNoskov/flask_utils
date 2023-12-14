@@ -6,7 +6,6 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_restful import Api
-from flask_admin import Admin, AdminIndexView
 from flask_babel import Babel
 
 from .config import config
@@ -22,11 +21,12 @@ app = Flask(__name__)
 api = Api(app)
 babel = Babel(app)
 
+
 def get_locale():
     return request.accept_languages.best_match(ALLOWED_LANGUAGES.keys())
 
+
 babel.init_app(app, locale_selector=get_locale)
-# admin = Admin(app)
 
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 app.config['UPLOAD_FOLDER'] = os.path.realpath('.') + '/my_app/static/uploads'
@@ -77,10 +77,6 @@ api.add_resource(
     '/api/products/<int:page>',
     '/api/product/<int:id>'
 )
-
-# from my_app.auth.views import HelloView
-# admin_mod.add_view(HelloView(name='Hello'))
-# from my_app.auth.views import HelloView
 
 with app.app_context():
     db.create_all()
