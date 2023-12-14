@@ -29,18 +29,33 @@ app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
 app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
 app.config['LOG_FILE'] = 'application.log'
 
+RECEPIENTS = ['example@mail.com']
+
 if not app.debug:
     import logging
     from logging import FileHandler, Formatter
+    from logging.handlers import SMTPHandler
     file_handler = FileHandler(app.config['LOG_FILE'])
     app.logger.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
-    file_handler.setFormatter(
-        Formatter(
-            '%(asctime)s %(levelname)s: %(message)s '
-            '[in %(pathname)s:%(lineno)d]'
-        )
+
+    mail_handler = SMTPHandler(
+        ("smtp.yandex.ru", 465),
+        'example@yandex.ru',
+        RECEPIENTS,
+        'Error occurred in your app',
+        ('example@gmail.com', 'Example_pass'),
+        secure=()
     )
+    mail_handler.setLevel(logging.ERROR)
+    app.logger.addHandler(mail_handler)
+    for handler in [file_handler, mail_handler]:
+        handler.setFormatter(
+            Formatter(
+                '%(asctime)s %(levelname)s: %(message)s '
+                '[in %(pathname)s:%(lineno)d]'
+            )
+        )
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
@@ -76,9 +91,6 @@ api.add_resource(
     '/api/product/<int:id>'
 )
 
-# from my_app.auth.views import HelloView
-# admin_mod.add_view(HelloView(name='Hello'))
-# from my_app.auth.views import HelloView
 
 with app.app_context():
     db.create_all()
