@@ -12,7 +12,6 @@ from .config import config
 
 app = Flask(__name__)
 api = Api(app)
-# admin = Admin(app)
 
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 app.config['UPLOAD_FOLDER'] = os.path.realpath('.') + '/my_app/static/uploads'
@@ -28,7 +27,20 @@ app.config["FACEBOOK_OAUTH_CLIENT_SECRET"] = config['FACEBOOK_SECRET']
 app.config["GOOGLE_OAUTH_CLIENT_ID"] = config['GOOGLE_CLIENT_ID']
 app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
 app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
+app.config['LOG_FILE'] = 'application.log'
 
+if not app.debug:
+    import logging
+    from logging import FileHandler, Formatter
+    file_handler = FileHandler(app.config['LOG_FILE'])
+    app.logger.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    file_handler.setFormatter(
+        Formatter(
+            '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(pathname)s:%(lineno)d]'
+        )
+    )
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
@@ -74,9 +86,11 @@ with app.app_context():
 
 @app.errorhandler(404)
 def page_not_found(e):
+    app.logger.error(e)
     return render_template('404.html'), 404
 
 
 @app.errorhandler(MyCustom404)
 def special_page_not_found(error):
+    app.logger.error(error)
     return render_template("custom_404.html"), 404

@@ -1,7 +1,7 @@
 import os
 from functools import wraps
 
-from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for
+from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for, abort
 from sqlalchemy.orm import join
 from werkzeug.utils import secure_filename
 
@@ -32,18 +32,17 @@ def template_to_json(template=None):
 @catalog.route('/home')
 @template_to_json('home.html')
 def home():
-    # if request.headers.get("X-Requested-With") == "XMLHttpRequest":
     products = Product.query.all()
-        # return jsonify({'count': len(products)})
-    # # return "Welcome to catalog home"
-    # return render_template('home.html')
+    app.logger.info(f'Home page with total of {len(products)} products')
     return {"count": len(products)}
 
 
 @catalog.route('/product/<prod_id>')
 def product(prod_id):
-    product = Product.query.get_or_404(prod_id)
-    # return 'Product - {}, ${}'.format(prod.name, prod.price)
+    product = Product.query.filter_by(id=prod_id).first()
+    if not product:
+        app.logger.warning('Requested product not found')
+        abort(404)
     return render_template('product.html', product=product)
 
 
