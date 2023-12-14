@@ -1,11 +1,11 @@
 import os
 from functools import wraps
 
-from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for, abort
+from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for, abort, current_app
 from sqlalchemy.orm import join
 from werkzeug.utils import secure_filename
 
-from my_app import app, db, MyCustom404, ALLOWED_EXTENSIONS
+from my_app import app, db, MyCustom404
 from my_app.catalog.models import Product, Category
 from .forms import ProductForm, CategoryForm
 
@@ -33,7 +33,7 @@ def template_to_json(template=None):
 @template_to_json('home.html')
 def home():
     products = Product.query.all()
-    app.logger.info(f'Home page with total of {len(products)} products')
+    current_app.logger.info(f'Home page with total of {len(products)} products')
     return {"count": len(products)}
 
 
@@ -41,7 +41,7 @@ def home():
 def product(prod_id):
     product = Product.query.filter_by(id=prod_id).first()
     if not product:
-        app.logger.warning('Requested product not found')
+        current_app.logger.warning('Requested product not found')
         abort(404)
     return render_template('product.html', product=product)
 
@@ -49,19 +49,7 @@ def product(prod_id):
 @catalog.route('/products')
 @catalog.route('/products/<int:page>')
 def products(page=1):
-    # prods = Product.query.all()
-    # prods = Product.query.paginate(page=page, per_page=10).items
     products = Product.query.paginate(page=page, per_page=10)
-    # response = {}
-    # for prod in prods:
-    #     response[prod.id] = {
-    #         "name": prod.name,
-    #         "price": prod.price,
-    #         'category': prod.category.name,
-    #         'company': prod.company
-    #     }
-    # print(prods)
-    # return jsonify(response)
     return render_template('products.html', products=products)
 
 

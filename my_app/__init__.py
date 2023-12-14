@@ -16,54 +16,69 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
 )
 
-app = Flask(__name__)
-api = Api(app)
 
-ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
-app.config['UPLOAD_FOLDER'] = os.path.realpath('.') + '/my_app/static/uploads'
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f'{config["DB_DRIVER"]}://{config["DB_USER"]}:{config["DB_PASSWORD"]}@'
-    f'{config["DB_HOST"]}:{config["DB_PORT"]}/{config["DB_NAME"]}'
-)
-app.secret_key = config['SECRET_KEY']
-app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
-app.config["FACEBOOK_OAUTH_CLIENT_ID"] = config['FACEBOOK_ID']
-app.config["FACEBOOK_OAUTH_CLIENT_SECRET"] = config['FACEBOOK_SECRET']
+def create_app(alt_config={}):
+    app = Flask(__name__, template_folder=alt_config.get('TEMPLATE_FOLDER', 'templates'))
 
-app.config["GOOGLE_OAUTH_CLIENT_ID"] = config['GOOGLE_CLIENT_ID']
-app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
-app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
-app.config['LOG_FILE'] = 'application.log'
-
-RECEPIENTS = ['example@mail.com']
-
-if not app.debug:
-    import logging
-    from logging import FileHandler, Formatter
-    from logging.handlers import SMTPHandler
-    file_handler = FileHandler(app.config['LOG_FILE'])
-    app.logger.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
-
-    mail_handler = SMTPHandler(
-        ("smtp.yandex.ru", 465),
-        'example@yandex.ru',
-        RECEPIENTS,
-        'Error occurred in your app',
-        ('example@gmail.com', 'Example_pass'),
-        secure=()
+    ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
+    app.config['UPLOAD_FOLDER'] = os.path.realpath('.') + '/my_app/static/uploads'
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        f'{config["DB_DRIVER"]}://{config["DB_USER"]}:{config["DB_PASSWORD"]}@'
+        f'{config["DB_HOST"]}:{config["DB_PORT"]}/{config["DB_NAME"]}'
     )
-    mail_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(mail_handler)
-    for handler in [file_handler, mail_handler]:
-        handler.setFormatter(
-            Formatter(
-                '%(asctime)s %(levelname)s: %(message)s '
-                '[in %(pathname)s:%(lineno)d]'
-            )
-        )
-db = SQLAlchemy(app)
+    app.secret_key = config['SECRET_KEY']
+    app.config['WTF_CSRF_SECRET_KEY'] = app.secret_key
+    app.config["FACEBOOK_OAUTH_CLIENT_ID"] = config['FACEBOOK_ID']
+    app.config["FACEBOOK_OAUTH_CLIENT_SECRET"] = config['FACEBOOK_SECRET']
 
+    app.config["GOOGLE_OAUTH_CLIENT_ID"] = config['GOOGLE_CLIENT_ID']
+    app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
+    app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
+    app.config['LOG_FILE'] = 'application.log'
+
+    RECEPIENTS = ['example@mail.com']
+
+    if not app.debug:
+        import logging
+        from logging import FileHandler, Formatter
+        from logging.handlers import SMTPHandler
+        file_handler = FileHandler(app.config['LOG_FILE'])
+        app.logger.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+
+        mail_handler = SMTPHandler(
+            ("smtp.yandex.ru", 465),
+            'example@yandex.ru',
+            RECEPIENTS,
+            'Error occurred in your app',
+            ('example@gmail.com', 'Example_pass'),
+            secure=()
+        )
+        mail_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(mail_handler)
+        for handler in [file_handler, mail_handler]:
+            handler.setFormatter(
+                Formatter(
+                    '%(asctime)s %(levelname)s: %(message)s '
+                    '[in %(pathname)s:%(lineno)d]'
+                )
+            )
+        return app
+
+
+db_alch = SQLAlchemy()
+
+
+def create_db(app):
+    db_alch.init_app(app)
+    with app.app_context():
+        db_alch.create_all()
+        return db_alch
+
+
+app = create_app()
+api = Api(app)
+db = create_db(app)
 migrate = Migrate(app, db)
 CSRFProtect(app)
 
