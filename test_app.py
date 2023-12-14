@@ -75,6 +75,45 @@ class CatalogTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('iPhone 5' in response.data.decode("utf-8"))
 
+    def test_search_product(self):
+        """Test searching product"""
+        #  Create a category to be used in product creation
+        response = self.client.post('/category-create', data={
+            'name': 'Phones'}
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # Create a product
+        response = self.client.post('/product-create', data={
+            'name': 'iPhone 5',
+            'price': 549.49,
+            'company': 'Apple',
+            'category': 1,
+            'image': tempfile.NamedTemporaryFile()
+        })
+        self.assertEqual(response.status_code, 302)
+
+        # Create another product
+        response = self.client.post('/product-create', data={
+            'name': 'Galaxy S5',
+            'price': 549.49,
+            'company': 'Samsung',
+            'category': 1,
+            'image': tempfile.NamedTemporaryFile()
+        })
+        self.assertEqual(response.status_code, 302)
+
+        self.client.get('/products')   # to close create alerts
+
+        response = self.client.get('/product-search?name=iPhone')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('iPhone 5' in response.data.decode("utf-8"))
+        self.assertFalse('Galaxy S5' in response.data.decode("utf-8"))
+
+        response = self.client.get('/product-search?name = iPhone 6')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse('iPhone 6' in response.data.decode("utf-8"))
+
 
 if __name__ == '__main__':
     unittest.main()
