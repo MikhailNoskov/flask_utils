@@ -1,7 +1,8 @@
 import os
 from functools import wraps
 
-from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for
+from flask import request, jsonify, Blueprint, render_template, flash, redirect, g
+from flask import url_for as flask_url_for
 from sqlalchemy.orm import join
 from werkzeug.utils import secure_filename
 
@@ -28,8 +29,23 @@ def template_to_json(template=None):
     return decorated
 
 
-@catalog.route('/')
-@catalog.route('/home')
+@app.before_request
+def before():
+    if request.view_args and 'lang' in request.view_args:
+        g.current_lang = request.view_args['lang']
+        request.view_args.pop('lang')
+
+
+@app.context_processor
+def inject_url_for():
+    return {'url_for': lambda endpoint, **kwargs: flask_url_for(endpoint, lang=g.get('current_lang', 'en'), **kwargs)}
+
+
+url_for = inject_url_for()['url_for']
+
+
+@catalog.route('/<lang>/')
+@catalog.route('/<lang>/home')
 @template_to_json('home.html')
 def home():
     # if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -40,15 +56,15 @@ def home():
     return {"count": len(products)}
 
 
-@catalog.route('/product/<prod_id>')
+@catalog.route('/<lang>/product/<prod_id>')
 def product(prod_id):
     product = Product.query.get_or_404(prod_id)
     # return 'Product - {}, ${}'.format(prod.name, prod.price)
     return render_template('product.html', product=product)
 
 
-@catalog.route('/products')
-@catalog.route('/products/<int:page>')
+@catalog.route('/<lang>/products')
+@catalog.route('/<lang>/products/<int:page>')
 def products(page=1):
     # prods = Product.query.all()
     # prods = Product.query.paginate(page=page, per_page=10).items
@@ -66,7 +82,7 @@ def products(page=1):
     return render_template('products.html', products=products)
 
 
-@catalog.route('/product-create', methods=["GET", "POST",])
+@catalog.route('/<lang>/product-create', methods=["GET", "POST",])
 def create_product():
     form = ProductForm()
     if form.validate_on_submit():
@@ -88,7 +104,7 @@ def create_product():
     return render_template('product-create.html', form=form)
 
 
-@catalog.route('/category-create', methods=['GET', 'POST',])
+@catalog.route('/<lang>/category-create', methods=['GET', 'POST',])
 def create_category():
     form = CategoryForm()
     if form.validate_on_submit():
@@ -104,7 +120,7 @@ def create_category():
     return render_template('category-create.html', form=form)
 
 
-@catalog.route('/categories')
+@catalog.route('/<lang>/categories')
 def categories():
     categories = Category.query.all()
     res = {}
@@ -122,7 +138,7 @@ def categories():
     return render_template('categories.html', categories=categories)
 
 
-@catalog.route('/category/<int:id>')
+@catalog.route('/<lang>/category/<int:id>')
 def category(id):
     category = Category.query.get_or_404(id)
     print(category.name)
@@ -134,8 +150,8 @@ def exception_404():
     raise MyCustom404
 
 
-@catalog.route('/product-search')
-@catalog.route('/product-search/<int:page>')
+@catalog.route('/<lang>/product-search')
+@catalog.route('/<lang>/product-search/<int:page>')
 def product_search(page=1):
     name = request.args.get('name')
     price = request.args.get('price')
