@@ -1,12 +1,13 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_restful import Api
 from flask_admin import Admin, AdminIndexView
+from flask_babel import Babel
 
 from .config import config
 
@@ -38,6 +39,17 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 
+ALLOWED_LANGUAGES = {
+    'en': 'English',
+    'es': 'Spanish',
+}
+
+babel = Babel(app)
+
+def get_locale():
+    return request.accept_languages.best_match(ALLOWED_LANGUAGES.keys())
+
+babel.init_app(app, locale_selector=get_locale())
 
 from my_app.admin_mod import admin_models
 
