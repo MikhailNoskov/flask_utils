@@ -4,6 +4,7 @@ from functools import wraps
 from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for, abort, current_app
 from sqlalchemy.orm import join
 from werkzeug.utils import secure_filename
+import boto3
 
 from my_app import app, db, MyCustom404
 from my_app.catalog.models import Product, Category
@@ -62,7 +63,26 @@ def create_product():
         categ = Category.query.get_or_404(request.form.get('category'))
         image = form.image.data
         filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        # image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        #  saving image to s3 bucket
+        session = boto3.Session(
+            aws_access_key_id=current_app.config['AWS_ACCESS_KEY'],
+            aws_secret_access_key=current_app.config['AWS_SECRET_KEY']
+        )
+        s3 = session.resource('s3')
+        bucket = s3.Bucket(current_app.config['AWS_BUCKET'])
+        if bucket not in list(s3.buckets.all()):
+            bucket = s3.create_bucket(
+                Bucket = current_app.config['AWS_BUCKET'],
+                CreateBucketConfiguration = {
+                    'LocationConstraint':
+                        'ap-south-1'},
+            )
+        bucket.upload_fileobj(
+            image,
+            filename,
+            ExtraArgs={'ACL': 'public-read'}
+        )
         new_prod = Product(name=name, price=price, category=categ, image_path=filename)
         db.session.add(new_prod)
         db.session.commit()
