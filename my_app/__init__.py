@@ -35,6 +35,11 @@ def create_app(alt_config={}):
     app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['GOOGLE_CLIENT_SECRET']
     app.config["OAUTHLIB_RELAX_TOKEN_SCOPE"] = True
     app.config['LOG_FILE'] = 'application.log'
+
+    app.config['AWS_ACCESS_KEY'] = config['AWS_ACCESS_KEY']
+    app.config['AWS_SECRET_KEY'] = config['AWS_SECRET_KEY']
+    app.config['AWS_BUCKET'] = config['AWS_BUCKET']
+
     app.config.update(alt_config)
 
     RECEPIENTS = ['example@mail.com']
