@@ -38,7 +38,7 @@ class UserAdminView(ModelView, ActionsMixin):
         if 'C' not in current_user.roles:
             flash('You are not allowed to create users.', 'warning')
             return
-        model = self.model(form.username.data, form.password.data, form.admin.data)
+        model = self.model(form.username.data, form.password.data, form.admin.data, form.roles.data)
         form.populate_obj(model)
         self.session.add(model)
         self._on_model_change(form, model, True)
