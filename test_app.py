@@ -2,6 +2,7 @@ import os
 from my_app import create_app, db
 import unittest
 import tempfile
+import coverage
 
 
 class CatalogTestCase(unittest.TestCase):
@@ -115,5 +116,22 @@ class CatalogTestCase(unittest.TestCase):
         self.assertFalse('iPhone 6' in response.data.decode("utf-8"))
 
 
+cov = coverage.coverage(
+    omit = [
+        '/home/mike/PycharmProjects/flask_utils'
+        '/Users/apple/workspace/flask-cookbook-3//lib/python3.10/site-packages/*',
+        'test_app.py'
+    ]
+)
+cov.start()
+
+
 if __name__ == '__main__':
-    unittest.main()
+    try:
+        unittest.main()
+    finally:
+        cov.stop()
+        cov.save()
+        cov.report()
+        cov.html_report(directory='coverage')
+        cov.erase()
