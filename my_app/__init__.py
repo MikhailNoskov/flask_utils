@@ -1,3 +1,6 @@
+import newrelic.agent
+newrelic.agent.initialize('newrelic.ini')
+
 import os
 import sentry_sdk
 
