@@ -180,4 +180,4 @@ def product_search_gpt():
         )
 
         return response['choices'][0]['text'].strip('\n').split('\n')[1:]
-    return render_template('product-search-gpt-demo.html')
+    return render_template('product-search-gpt.html')
