@@ -5,6 +5,7 @@ from flask import request, jsonify, Blueprint, render_template, flash, redirect,
 from sqlalchemy.orm import join
 from werkzeug.utils import secure_filename
 import boto3
+import openai
 
 from my_app import app, db, MyCustom404
 from my_app.catalog.models import Product, Category
@@ -158,3 +159,25 @@ def product_search(page=1):
     if category:
         products = products.select_from(join(Product, Category)).filter(Category.name.like('%' + category + '%'))
     return render_template('products.html', products=products.paginate(page=page, per_page=10))
+
+
+@catalog.route('/product-search-gpt', methods=['GET', 'POST'])
+def product_search_gpt():
+    if request.method == 'POST':
+        query = request.form.get('query')
+        openai.api_key = app.config['OPENAI_KEY']
+        prompt = """Context: Ecommerce electronics website\n
+        Operation: Create search queries for a product\n
+        Product: """ + query
+        response = openai.Completion.create(
+            model="text-davinci-003",
+            prompt=prompt,
+            temperature=0.2,
+            max_tokens=60,
+            top_p=1.0,
+            frequency_penalty=0.5,
+            presence_penalty=0.0
+        )
+
+        return response['choices'][0]['text'].strip('\n').split('\n')[1:]
+    return render_template('product-search-gpt-demo.html')

@@ -43,6 +43,8 @@ def create_app(alt_config={}):
     app.config['AWS_SECRET_KEY'] = config['AWS_SECRET_KEY']
     app.config['AWS_BUCKET'] = config['AWS_BUCKET']
 
+    app.config['OPENAI_KEY'] = config['OPENAI_KEY']
+    
     app.config.update(alt_config)
 
     RECEPIENTS = ['example@mail.com']
