@@ -14,24 +14,26 @@
 
 {% block scripts %}
 <script>
-    $(document).ready(function() {
-        const input = document.querySelector('input[name="query"]');
-        const awesomplete = new Awesomplete(input, {tabSelect: true, minChars: 5 });
+$(document).ready(function(){
 
-        function ajaxResults() {
-            $.ajax({
-                url: '{{ url_for("catalog.product_search_gpt") }}',
-                    type: 'POST',
-                    dataType: "json",
-                    data: {
-                        query: input.value
-                    }
-                })
-            .done(function(data) {
-                awesomplete.list = data;
-            });
-        };
-        input.addEventListener('keyup', ajaxResults);
+  const input = document.querySelector( 'input[name="query"]' );
+
+  const awesomplete = new Awesomplete( input, { tabSelect: true, minChars: 5 } );
+
+  function ajaxResults() {
+    $.ajax({
+        url: '{{ url_for("catalog.product_search_gpt") }}',
+        type: 'POST',
+        dataType: "json",
+        data: {
+            query: input.value
+        }
+    })
+    .done(function(data) {
+        awesomplete.list = [data];
     });
+  };
+  input.addEventListener( 'keyup', ajaxResults );
+});
 </script>
 {% endblock %}
