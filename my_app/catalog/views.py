@@ -2,6 +2,7 @@ import json
 import os
 from functools import wraps
 
+import requests
 from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for, abort, current_app
 from sqlalchemy.orm import join
 from werkzeug.utils import secure_filename
@@ -10,7 +11,7 @@ import openai
 
 from my_app import app, db, MyCustom404
 from my_app.catalog.models import Product, Category
-from .forms import ProductForm, CategoryForm
+from .forms import ProductForm, CategoryForm, ProductGPTForm
 
 catalog = Blueprint('catalog', __name__)
 
@@ -205,3 +206,35 @@ def chat_gpt():
             message = response['choices'][0]['message']['content']
         )
     return render_template('chatgpt.html')
+
+
+@catalog.route('/product-create-gpt',methods=['GET','POST'])
+def create_product_gpt():
+    form = ProductGPTForm()
+    if form.validate_on_submit():
+        name = request.name.data
+        price = request.price.data
+        category = Category.query.get_or_404(request.category.data)
+
+        openai.api_key = app.config['OPENAI_KEY']
+
+        prompt = "Generate an image for a " + name + " on a white background for a classy e - commerce store listing"
+        response = openai.Image.create(
+            prompt=prompt,
+            n=1,
+            size="512x512"
+        )
+        image_url = response['data'][0]['url']
+        filename = secure_filename(name + '.png')
+        response = requests.get(image_url)
+        open(os.path.join(app.config['UPLOAD_FOLDER'], filename), "wb").write(response.content)
+        product = Product(name, price, category, filename)
+        db.session.add(product)
+        db.session.commit()
+
+        flash(f'The product {name} has been created', 'success')
+        return redirect(url_for('catalog.product', id=product.id))
+    if form.errors:
+        flash(form.errors, 'danger')
+
+    return render_template('product-create-gpt.html', form=form)
