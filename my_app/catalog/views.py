@@ -181,3 +181,27 @@ def product_search_gpt():
         )
         return response['choices'][0]['text'].strip('\n').split('\n')[1:]
     return render_template('product-search-gpt.html')
+
+
+@catalog.route('/chat-gpt', methods=['GET', 'POST'])
+def chat_gpt():
+    if request.method == 'POST':
+        msg = request.form.get('msg')
+
+        openai.api_key = app.config['OPENAI_KEY']
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful chat assistant for a generic electronics Ecommerce website"
+            },
+            {"role": "user", "content": msg}
+        ]
+
+        response = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo',
+            messages=messages
+        )
+        return jsonify(
+            message = response['choices'][0]['message']['content']
+        )
+    return render_template('chatgpt-demo.html')
