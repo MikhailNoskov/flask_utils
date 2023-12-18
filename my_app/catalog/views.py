@@ -227,6 +227,26 @@ def create_product_gpt():
         image_url = response['data'][0]['url']
         filename = secure_filename(name + '.png')
         response = requests.get(image_url)
+
+        # session = boto3.Session(
+        #     aws_access_key_id=current_app.config['AWS_ACCESS_KEY'],
+        #     aws_secret_access_key=current_app.config['AWS_SECRET_KEY']
+        # )
+        # s3 = session.resource('s3')
+        # bucket = s3.Bucket(current_app.config['AWS_BUCKET'])
+        # if bucket not in list(s3.buckets.all()):
+        #     bucket = s3.create_bucket(
+        #         Bucket=current_app.config['AWS_BUCKET'],
+        #         CreateBucketConfiguration={
+        #             'LocationConstraint':
+        #                 'ap-south-1'},
+        #     )
+        # bucket.upload_fileobj(
+        #     response.content,
+        #     filename,
+        #     ExtraArgs={'ACL': 'public-read'}
+        # )
+
         with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), "wb") as file:
             file.write(response.content)
         product = Product(name, price, category, filename)
