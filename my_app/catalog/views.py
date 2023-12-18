@@ -204,4 +204,4 @@ def chat_gpt():
         return jsonify(
             message = response['choices'][0]['message']['content']
         )
-    return render_template('chatgpt-demo.html')
+    return render_template('chatgpt.html')
