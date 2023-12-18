@@ -179,6 +179,5 @@ def product_search_gpt():
             frequency_penalty=0.5,
             presence_penalty=0.0
         )
-        # return jsonify(query)
         return response['choices'][0]['text'].strip('\n').split('\n')[1:]
     return render_template('product-search-gpt.html')
