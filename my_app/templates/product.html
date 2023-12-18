@@ -6,7 +6,7 @@
     <h4>{{ product.company }}</h4>
     <h3>{{ product.price }}</h3>
     {% if product.image_path %}
-<!--        <img src="{{ url_for('static', filename='uploads/' + product.image_path) }}" style="width: 30%;"/>-->
+        <img src="{{ url_for('static', filename='uploads/' + product.image_path) }}" style="width: 30%;"/> or
         <img src="{{ 'https://' + config['AWS_BUCKET'] + '.s3.eu-north-1.amazonaws.com/' + product.image_path }}"/>
     {% endif %}
 </div>

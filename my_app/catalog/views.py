@@ -203,7 +203,7 @@ def chat_gpt():
             messages=messages
         )
         return jsonify(
-            message = response['choices'][0]['message']['content']
+            message=response['choices'][0]['message']['content']
         )
     return render_template('chatgpt.html')
 
@@ -212,9 +212,9 @@ def chat_gpt():
 def create_product_gpt():
     form = ProductGPTForm()
     if form.validate_on_submit():
-        name = request.name.data
-        price = request.price.data
-        category = Category.query.get_or_404(request.category.data)
+        name = request.form.get('name')
+        price = request.form.get('price')
+        category = Category.query.get_or_404(request.form.get('category'))
 
         openai.api_key = app.config['OPENAI_KEY']
 
@@ -227,13 +227,14 @@ def create_product_gpt():
         image_url = response['data'][0]['url']
         filename = secure_filename(name + '.png')
         response = requests.get(image_url)
-        open(os.path.join(app.config['UPLOAD_FOLDER'], filename), "wb").write(response.content)
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), "wb") as file:
+            file.write(response.content)
         product = Product(name, price, category, filename)
         db.session.add(product)
         db.session.commit()
 
         flash(f'The product {name} has been created', 'success')
-        return redirect(url_for('catalog.product', id=product.id))
+        return redirect(url_for('catalog.product', prod_id=product.id))
     if form.errors:
         flash(form.errors, 'danger')
 
