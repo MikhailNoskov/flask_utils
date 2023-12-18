@@ -68,3 +68,8 @@ class ProductForm(BasicForm):
 
 class CategoryForm(BasicForm):
     name = StringField('Name', validators=[InputRequired(), check_duplicate_category()])
+
+
+class ProductGPTForm(BasicForm):
+    price = DecimalField('Price', validators=[InputRequired(), NumberRange(min=Decimal('0.0'))])
+    category = CategoryField('Category', coerce=int, validators=[InputRequired()])
