@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block container %}
+    <h1>Welcome to the Catalog Home</h1>
+    {% if current_user.is_authenticated %}
+        <h3>Hey {{ current_user.username }}</h3>
+        <a href="{{ url_for('catalog.products') }}" id="catalog_link">Click here to see the catalog</a>
+        <a href="{{ url_for('auth.logout') }}">Click here to logout</a>
+    {% else %}
+        Click here to <a href="{{ url_for('auth.login') }}">login</a> or <a href="{{ url_for('auth.register') }}">register</a>
+    {% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+$(document).ready(function(){
+    $.getJSON("/home", function(data) {
+        $('#catalog_link').append('<span class="alertion">' + " " + data.count + '</span>');
+    });
+});
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i
+            .test(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken)
+        }
+    }
+})
+</script>
+{% endblock %}
