@@ -11,6 +11,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_restful import Api
 from flask_mail import Mail
+from celery import Celery
 
 from .config import config
 
@@ -55,6 +56,10 @@ def create_app(alt_config={}):
     app.config['MAIL_PASSWORD'] = config['MAIL_PASSWORD']
     app.config['MAIL_DEFAULT_SENDER'] = (config['SENDER_NAME'], config['SENDER_EMAIL'])
     app.config['RECEIVER_EMAIL'] = config['RECEIVER_EMAIL']
+
+    app.config['SERVER_NAME'] = config['SERVER_NAME']
+    app.config['CELERY_BROKER_URL'] = config['CELERY_BROKER_URL']
+    app.config['CELERY_RESULT_BACKEND'] = config['CELERY_RESULT_BACKEND']
 
     RECEPIENTS = ['example@mail.com']
 
@@ -106,6 +111,28 @@ mail = Mail(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
+
+
+def make_celery(app):
+    celery = Celery(
+        app.import_name,
+        broker=app.config['CELERY_BROKER_URL']
+    )
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+
+    class ContextTask(TaskBase):
+        abstract = True
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, ** kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
+
+celery = make_celery(app)
 
 
 from my_app.admin_mod import admin_models

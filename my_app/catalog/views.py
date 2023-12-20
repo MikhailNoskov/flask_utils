@@ -4,7 +4,7 @@ from functools import wraps
 
 import requests
 from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for, abort, current_app
-from flask_mail import Message
+# from flask_mail import Message
 from sqlalchemy.orm import join
 from werkzeug.utils import secure_filename
 import boto3
@@ -14,6 +14,7 @@ from my_app import app, db, MyCustom404
 from my_app.catalog.models import Product, Category
 from .forms import ProductForm, CategoryForm, ProductGPTForm
 from my_app import mail
+from my_app.tasks import send_mail
 
 catalog = Blueprint('catalog', __name__)
 
@@ -110,11 +111,12 @@ def create_category():
         db.session.commit()
         # return 'Category created.'
         flash('The category %s has been created' % name,'success')
-        message = Message("New category added",
-                          recipients=[app.config['RECEIVER_EMAIL']])
-        message.body = render_template("category-create-email-text.html", category=category)
-        message.html = render_template("category-create-email-html.html", category=category)
-        mail.send(message)
+        # message = Message("New category added",
+        #                   recipients=[app.config['RECEIVER_EMAIL']])
+        # message.body = render_template("category-create-email-text.html", category=category)
+        # message.html = render_template("category-create-email-html.html", category=category)
+        # mail.send(message)
+        send_mail.apply_async(args=[category.id, category.name])
         return render_template('category.html', category=category)
     if form.errors:
         flash(form.errors, 'danger')
