@@ -39,9 +39,9 @@ def template_to_json(template=None):
 @catalog.route('/home')
 @template_to_json('home.html')
 def home():
-    products = Product.query.all()
-    current_app.logger.info(f'Home page with total of {len(products)} products')
-    return {"count": len(products)}
+    products = Product.query.count()
+    current_app.logger.info(f'Home page with total of {products} products')
+    return {"count": products}
 
 
 @catalog.route('/product/<prod_id>')
@@ -144,7 +144,6 @@ def categories():
 @catalog.route('/category/<int:id>')
 def category(id):
     category = Category.query.get_or_404(id)
-    print(category.name)
     return render_template('category.html', category=category)
 
 
