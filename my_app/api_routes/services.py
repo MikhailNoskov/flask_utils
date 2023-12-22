@@ -12,10 +12,12 @@ from my_app.catalog.models import Product, Category
 class ProductAPIService:
     parser = reqparse.RequestParser()
 
-    def _init_parsser(self):
-        self.parser.add_argument('name', type=str)
-        self.parser.add_argument('price', type=float)
-        self.parser.add_argument('category', type=dict)
+    @classmethod
+    def _init_parser(cls):
+        cls.parser.add_argument('name', type=str)
+        cls.parser.add_argument('price', type=float)
+        cls.parser.add_argument('category', type=dict)
+        return cls.parser
 
     @classmethod
     def get(cls, id=None, page=1):
@@ -34,8 +36,9 @@ class ProductAPIService:
             }
         return json.dumps(res)
 
-    def post(self):
-        args = self.parser.parse_args()
+    @classmethod
+    def post(cls):
+        args = cls._init_parser().parse_args()
         name = args['name']
         price = args['price']
         categ_name = args['category']['name']
