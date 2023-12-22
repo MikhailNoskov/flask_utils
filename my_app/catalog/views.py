@@ -65,44 +65,44 @@ def products(page=1):
 
 @catalog.route('/product-create', methods=["GET", "POST",])
 def create_product():
-    form = ProductForm()
-    if form.validate_on_submit():
-        name = request.form.get('name')
-        price = request.form.get('price')
-        categ = Category.query.get_or_404(request.form.get('category'))
-        image = form.image.data
-        filename = secure_filename(image.filename)
-        # image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        #  saving image to s3 bucket
-        session = boto3.Session(
-            aws_access_key_id=current_app.config['AWS_ACCESS_KEY'],
-            aws_secret_access_key=current_app.config['AWS_SECRET_KEY']
-        )
-        s3 = session.resource('s3')
-        bucket = s3.Bucket(current_app.config['AWS_BUCKET'])
-        if bucket not in list(s3.buckets.all()):
-            bucket = s3.create_bucket(
-                Bucket = current_app.config['AWS_BUCKET'],
-                CreateBucketConfiguration = {
-                    'LocationConstraint':
-                        'ap-south-1'},
-            )
-        bucket.upload_fileobj(
-            image,
-            filename,
-            ExtraArgs={'ACL': 'public-read'}
-        )
-        new_prod = Product(name=name, price=price, category=categ, image_path=filename)
-        db.session.add(new_prod)
-        db.session.commit()
-        flash('The product %s has been created' % name,'success')
-        # if request.headers['Content-Type'] == 'application/multipart/form-data':
-        return redirect(url_for('catalog.product', prod_id=new_prod.id))
-        # return 'Product created.'
-    if form.errors:
-        flash(form.errors, 'danger')
-    return render_template('product-create.html', form=form)
-
+    # form = ProductForm()
+    # if form.validate_on_submit():
+    #     name = request.form.get('name')
+    #     price = request.form.get('price')
+    #     categ = Category.query.get_or_404(request.form.get('category'))
+    #     image = form.image.data
+    #     filename = secure_filename(image.filename)
+    #     # image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    #     #  saving image to s3 bucket
+    #     session = boto3.Session(
+    #         aws_access_key_id=current_app.config['AWS_ACCESS_KEY'],
+    #         aws_secret_access_key=current_app.config['AWS_SECRET_KEY']
+    #     )
+    #     s3 = session.resource('s3')
+    #     bucket = s3.Bucket(current_app.config['AWS_BUCKET'])
+    #     if bucket not in list(s3.buckets.all()):
+    #         bucket = s3.create_bucket(
+    #             Bucket = current_app.config['AWS_BUCKET'],
+    #             CreateBucketConfiguration = {
+    #                 'LocationConstraint':
+    #                     'ap-south-1'},
+    #         )
+    #     bucket.upload_fileobj(
+    #         image,
+    #         filename,
+    #         ExtraArgs={'ACL': 'public-read'}
+    #     )
+    #     new_prod = Product(name=name, price=price, category=categ, image_path=filename)
+    #     db.session.add(new_prod)
+    #     db.session.commit()
+    #     flash('The product %s has been created' % name,'success')
+    #     # if request.headers['Content-Type'] == 'application/multipart/form-data':
+    #     return redirect(url_for('catalog.product', prod_id=new_prod.id))
+    #     # return 'Product created.'
+    # if form.errors:
+    #     flash(form.errors, 'danger')
+    # return render_template('product-create.html', form=form)
+    return ProductTemplateService.create_product()
 
 @catalog.route('/category-create', methods=['GET', 'POST',])
 def create_category():
