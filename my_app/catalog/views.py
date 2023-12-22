@@ -15,6 +15,7 @@ from my_app.catalog.models import Product, Category
 from .forms import ProductForm, CategoryForm, ProductGPTForm
 from my_app import mail
 from my_app.tasks import send_mail
+from .services import ProductTemplateService
 
 catalog = Blueprint('catalog', __name__)
 
@@ -46,18 +47,20 @@ def home():
 
 @catalog.route('/product/<prod_id>')
 def product(prod_id):
-    product = Product.query.filter_by(id=prod_id).first()
-    if not product:
-        current_app.logger.warning('Requested product not found')
-        abort(404)
-    return render_template('product.html', product=product)
+    # product = Product.query.filter_by(id=prod_id).first()
+    # if not product:
+    #     current_app.logger.warning('Requested product not found')
+    #     abort(404)
+    # return render_template('product.html', product=product)
+    return ProductTemplateService.get_product(id=prod_id)
 
 
 @catalog.route('/products')
 @catalog.route('/products/<int:page>')
 def products(page=1):
-    products = Product.query.paginate(page=page, per_page=10)
-    return render_template('products.html', products=products)
+    # products = Product.query.paginate(page=page, per_page=10)
+    # return render_template('products.html', products=products)
+    return ProductTemplateService.get_products(page=page)
 
 
 @catalog.route('/product-create', methods=["GET", "POST",])
