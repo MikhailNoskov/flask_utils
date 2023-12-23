@@ -63,7 +63,7 @@ class BasicForm(FlaskForm):
 class ProductForm(BasicForm):
     price = DecimalField('Price', validators=[InputRequired(), NumberRange(min=Decimal('0.0'))])
     category = CategoryField('Category', coerce=int, validators=[InputRequired()])
-    image = FileField('Product Image', validators=[FileRequired()])
+    image = FileField('Product Image')
 
 
 class CategoryForm(BasicForm):
