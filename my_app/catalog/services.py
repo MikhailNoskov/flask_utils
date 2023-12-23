@@ -5,18 +5,20 @@ import boto3
 
 from my_app.catalog.models import Product, Category
 from .forms import ProductForm, CategoryForm, ProductGPTForm
+from my_app.db_services.product_db_services import ProductDBService
 
 
 class ProductTemplateService:
+    db_service = ProductDBService
 
     @classmethod
     def get_products(cls, page):
-        products = Product.query.paginate(page=page, per_page=10)
+        products = cls.db_service.get_products(page=page)
         return render_template('products.html', products=products)
 
     @classmethod
     def get_product(cls, id):
-        product = Product.query.filter_by(id=id).first()
+        product = cls.db_service.get_product(id=id)
         if not product:
             current_app.logger.warning('Requested product not found')
             abort(404)
