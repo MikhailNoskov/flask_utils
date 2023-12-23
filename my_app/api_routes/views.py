@@ -17,40 +17,9 @@ class ProductApi(Resource):
     service = ProductAPIService
 
     def get(self, id=None, page=1):
-        # if not id:
-        #     products = Product.query.paginate(page=page, per_page=10).items
-        # else:
-        #     products = [Product.query.get(id)]
-        # if not products:
-        #     abort(404)
-        # res = {}
-        # for product in products:
-        #     res[product.id] = {
-        #         'name': product.name,
-        #         'price': product.price,
-        #         'category': product.category.name
-        #     }
-        # return json.dumps(res)
         return self.service.get(id=id, page=page)
 
     def post(self):
-        # args = parser.parse_args()
-        # name = args['name']
-        # price = args['price']
-        # categ_name = args['category']['name']
-        # category = Category.query.filter_by(name=categ_name).first()
-        # if not category:
-        #     category = Category(categ_name)
-        # product = Product(name=name, price=price, category=category)
-        # db.session.add(product)
-        # db.session.commit()
-        # res = {}
-        # res[product.id] = {
-        #     'name': product.name,
-        #     'price': product.price,
-        #     'category': product.category.name,
-        # }
-        # return json.dumps(res)
         return self.service.post()
 
     def put(self, id):

@@ -13,5 +13,11 @@ class ProductDBService:
         return Product.query.filter_by(id=id).first()
 
     @classmethod
-    def create_product(cls):
-        pass
+    def create_product(cls, name, price, category):
+        category = Category.query.filter_by(name=category).first()
+        if not category:
+            category = Category(category)
+        product = Product(name=name, price=price, category=category)
+        db.session.add(product)
+        db.session.commit()
+        return product
