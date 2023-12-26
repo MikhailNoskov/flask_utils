@@ -46,13 +46,22 @@ class ProductAPIService:
         name = args['name']
         price = args['price']
         category = args['category']['name']
-        # category = Category.query.filter_by(name=categ_name).first()
-        # if not category:
-        #     category = Category(categ_name)
-        # product = Product(name=name, price=price, category=category)
-        # db.session.add(product)
-        # db.session.commit()
         product = cls.db_service.create_product(name=name, price=price, category=category)
+        res[product.id] = {
+            'name': product.name,
+            'price': product.price,
+            'category': product.category.name,
+        }
+        return json.dumps(res)
+
+    @classmethod
+    def put(cls, id):
+        args = cls._init_parser().parse_args()
+        name = args['name']
+        price = args['price']
+        categ_name = args['category']['name']
+        product = cls.db_service.update_product(id=id, name=name, price=price, category=categ_name)
+        res = dict()
         res[product.id] = {
             'name': product.name,
             'price': product.price,

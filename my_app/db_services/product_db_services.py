@@ -21,3 +21,16 @@ class ProductDBService:
         db.session.add(product)
         db.session.commit()
         return product
+
+    @classmethod
+    def update_product(cls, id, name, price, category):
+        category = Category.query.filter_by(name=category).first()
+        if not category:
+            category = Category(category)
+        Product.query.filter_by(id=id).update({
+            'name': name,
+            'price': price,
+            'category_id': category.id,
+        })
+        db.session.commit()
+        return cls.get_product(id=id)

@@ -23,25 +23,7 @@ class ProductApi(Resource):
         return self.service.post()
 
     def put(self, id):
-        args = parser.parse_args()
-        name = args['name']
-        price = args['price']
-        categ_name = args['category']['name']
-        category = Category.query.filter_by(name=categ_name).first()
-        Product.query.filter_by(id=id).update({
-            'name': name,
-            'price': price,
-            'category_id': category.id,
-        })
-        db.session.commit()
-        product = Product.query.get_or_404(id)
-        res = {}
-        res[product.id] = {
-            'name': product.name,
-            'price': product.price,
-            'category': product.category.name,
-        }
-        return json.dumps(res)
+        return self.service.put(id=id)
 
     def delete(self, id):
         product = Product.query.filter_by(id=id)
