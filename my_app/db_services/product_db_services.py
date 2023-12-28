@@ -34,3 +34,9 @@ class ProductDBService:
         })
         db.session.commit()
         return cls.get_product(id=id)
+
+    @classmethod
+    def delete_product(cls, id):
+        product = Product.query.filter_by(id=id)
+        product.delete()
+        db.session.commit()

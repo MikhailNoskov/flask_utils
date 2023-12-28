@@ -26,7 +26,4 @@ class ProductApi(Resource):
         return self.service.put(id=id)
 
     def delete(self, id):
-        product = Product.query.filter_by(id=id)
-        product.delete()
-        db.session.commit()
-        return json.dumps({'response': 'Success'})
+        return self.service.delete(id=id)

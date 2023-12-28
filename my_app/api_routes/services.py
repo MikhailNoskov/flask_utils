@@ -1,12 +1,8 @@
 import json
 
-from my_app import app, db, MyCustom404
 from flask import abort
-from flask_restful import Resource, reqparse
-from werkzeug.utils import secure_filename
-import boto3
+from flask_restful import reqparse
 
-from my_app.catalog.models import Product, Category
 from my_app.db_services.product_db_services import ProductDBService
 
 
@@ -28,7 +24,7 @@ class ProductAPIService:
             products = cls.db_service.get_products(page=page)
         else:
             products = [cls.db_service.get_product(id=id)]
-        if not products:
+        if not products or None in products:
             abort(404)
 
         for product in products:
@@ -68,3 +64,8 @@ class ProductAPIService:
             'category': product.category.name,
         }
         return json.dumps(res)
+
+    @classmethod
+    def delete(cls, id):
+        cls.db_service.delete_product(id=id)
+        return json.dumps({'response': 'Success'})
